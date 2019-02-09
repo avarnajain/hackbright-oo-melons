@@ -1,6 +1,13 @@
 """Classes for melon orders."""
 
+from random import randint
+from datetime import datetime
+
 class AbstractMelonOrder():
+    base_price = None
+    order_hour = datetime.now().hour
+    order_day = datetime.now().today().weekday()
+ 
     """An abstract base class"""
     def __init__(self, species, qty):
         self.species= species
@@ -9,15 +16,28 @@ class AbstractMelonOrder():
         self.shipped = False
 
 
+    def get_base_price(self):
+        """use rand int between 5-9 as base price"""
+        if self.base_price != None:
+            return self.base_price
+
+        self.base_price = randint(5,9)
+        if self.order_day in range(0, 6) and self.order_hour in range(8,12):
+                self.base_price = self.base_price + 4
+        return self.base_price
+
     def get_total(self):
         """Calculate price, including tax."""
-        if self.species == "Christmas melons":
-            base_price = 5 * 1.5
-        else:
-            base_price = 5
-        total = (1 + self.tax) * self.qty * base_price
+        if self.base_price == None:
+            self.get_base_price()
 
+        if self.species == "Christmas melons":
+            total = (1 + self.tax) * self.qty * self.base_price * 1.5
+        else:
+            total = (1 + self.tax) * self.qty * self.base_price      
+    
         return total
+
 
     def mark_shipped(self):
         """Record the fact than an order has been shipped."""
@@ -73,5 +93,4 @@ class GovernmentMelonOrder(AbstractMelonOrder):
 
     def mark_inspection(self, passed_inspection):
         self.passed_inspection = passed_inspection
-
 
